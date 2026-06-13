@@ -1,7 +1,7 @@
 const API_KEY = "be44d5f532fd44788e5b9003ec75a2a0";
 
 /* =========================
-   FULL TOURNAMENT MODEL
+   FULL KNOCKOUT TREE
    ========================= */
 
 let rounds = {
@@ -22,32 +22,65 @@ let rounds = {
     ["Argentina", "Uruguay"],
     ["Portugal", "Panama"],
     ["Turkey", "Iran"]
-  ]
+  ],
+  "Round of 16": [],
+  "Quarter Finals": [],
+  "Semi Finals": [],
+  "Final": []
 };
 
 /* =========================
-   RENDER BRACKET
+   SIMULATE PROGRESSION
+   ========================= */
+
+function simulateNextRound(currentRound, nextRound) {
+  const winners = [];
+
+  for (let i = 0; i < currentRound.length; i += 2) {
+    const match1 = currentRound[i];
+    const match2 = currentRound[i + 1];
+
+    const winner = Math.random() > 0.5 ? match1[0] : match1[1];
+    const opponent = Math.random() > 0.5 ? match2[0] : match2[1];
+
+    winners.push([winner, opponent]);
+  }
+
+  rounds[nextRound] = winners;
+}
+
+/* =========================
+   BUILD FULL BRACKET TREE
+   ========================= */
+
+function buildTournament() {
+  simulateNextRound(rounds["Round of 32"], "Round of 16");
+  simulateNextRound(rounds["Round of 16"], "Quarter Finals");
+  simulateNextRound(rounds["Quarter Finals"], "Semi Finals");
+  simulateNextRound(rounds["Semi Finals"], "Final");
+}
+
+/* =========================
+   RENDER
    ========================= */
 
 function render() {
   const container = document.getElementById("bracket");
   container.innerHTML = "";
 
-  Object.keys(rounds).forEach(roundName => {
+  Object.keys(rounds).forEach(round => {
     const col = document.createElement("div");
     col.className = "round";
 
-    col.innerHTML = `<h3>${roundName}</h3>`;
+    col.innerHTML = `<h3>${round}</h3>`;
 
-    rounds[roundName].forEach((m, i) => {
+    rounds[round].forEach(match => {
       const div = document.createElement("div");
       div.className = "match";
 
-      div.onclick = () => openModal(m);
-
       div.innerHTML = `
-        <div class="team"><span>${m[0]}</span><span id="${m[0]}-${m[1]}-h">-</span></div>
-        <div class="team"><span>${m[1]}</span><span id="${m[0]}-${m[1]}-a">-</span></div>
+        <div class="team"><span>${match[0]}</span><span>-</span></div>
+        <div class="team"><span>${match[1]}</span><span>-</span></div>
         <div class="score">vs</div>
       `;
 
@@ -59,66 +92,32 @@ function render() {
 }
 
 /* =========================
-   LIVE SCORE UPDATE
+   LIVE UPDATE (optional API)
    ========================= */
 
-async function updateScores() {
+async function updateLive() {
   try {
     const res = await fetch("https://api.football-data.org/v4/matches", {
       headers: { "X-Auth-Token": API_KEY }
     });
 
     const data = await res.json();
-    const matches = data.matches || [];
-
-    matches.forEach(m => {
-      const key = `${m.homeTeam?.name}-${m.awayTeam?.name}`;
-
-      const h = document.getElementById(`${key}-h`);
-      const a = document.getElementById(`${key}-a`);
-
-      if (h && a) {
-        h.innerText = m.score?.fullTime?.home ?? 0;
-        a.innerText = m.score?.fullTime?.away ?? 0;
-      }
-    });
 
     document.getElementById("status").innerText =
-      `Live system active • ${matches.length} matches`;
+      `Live mode • ${data.matches?.length || 0} matches detected`;
 
-  } catch (e) {
+  } catch {
     document.getElementById("status").innerText =
-      "Offline mode (bracket simulation active)";
+      "Tournament simulation mode (offline-safe)";
   }
-}
-
-/* =========================
-   MATCH MODAL
-   ========================= */
-
-function openModal(match) {
-  const modal = document.getElementById("modal");
-
-  modal.innerHTML = `
-    <div class="modal-content">
-      <h3>${match[0]} vs ${match[1]}</h3>
-      <p>Round: Knockout Stage</p>
-      <button onclick="closeModal()">Close</button>
-    </div>
-  `;
-
-  modal.classList.remove("hidden");
-}
-
-function closeModal() {
-  document.getElementById("modal").classList.add("hidden");
 }
 
 /* =========================
    INIT
    ========================= */
 
+buildTournament();
 render();
-updateScores();
+updateLive();
 
-setInterval(updateScores, 60000);
+setInterval(updateLive, 60000);
