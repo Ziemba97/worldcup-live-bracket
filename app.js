@@ -2,17 +2,31 @@ const API_KEY = "be44d5f532fd44788e5b9003ec75a2a0";
 
 async function fetchMatches() {
   try {
+    // Try World Cup competition endpoint
     const res = await fetch(
       "https://api.football-data.org/v4/competitions/WC/matches",
       {
-        headers: {
-          "X-Auth-Token": "be44d5f532fd44788e5b9003ec75a2a0"
-        }
+        headers: { "X-Auth-Token": API_KEY }
       }
     );
 
     const data = await res.json();
-    return data.matches || [];
+
+    // If API returns nothing, fallback to all matches
+    if (!data.matches || data.matches.length === 0) {
+      const res2 = await fetch(
+        "https://api.football-data.org/v4/matches",
+        {
+          headers: { "X-Auth-Token": API_KEY }
+        }
+      );
+
+      const data2 = await res2.json();
+      return data2.matches || [];
+    }
+
+    return data.matches;
+
   } catch (err) {
     console.error("API error:", err);
     return [];
