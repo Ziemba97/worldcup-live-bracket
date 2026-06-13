@@ -1,4 +1,4 @@
-const API_KEY = "PASTE_YOUR_API_KEY_HERE";
+const API_KEY = "be44d5f532fd44788e5b9003ec75a2a0";
 
 async function fetchMatches() {
   try {
