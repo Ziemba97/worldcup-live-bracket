@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background: #0b0f1a;
+  background: #0a0f1f;
   color: white;
   margin: 0;
   padding: 20px;
@@ -8,29 +8,42 @@ body {
 
 h1 {
   text-align: center;
+  margin-bottom: 10px;
 }
 
 #status {
   text-align: center;
-  margin-bottom: 20px;
   color: #aaa;
+  margin-bottom: 20px;
 }
 
 .bracket {
   display: flex;
-  justify-content: space-between;
-  overflow-x: auto;
   gap: 20px;
+  overflow-x: auto;
+  padding: 10px;
 }
 
 .round {
-  min-width: 180px;
+  min-width: 220px;
+}
+
+.round h3 {
+  text-align: center;
+  color: #4da3ff;
 }
 
 .match {
-  background: #1a2235;
+  background: #141c2f;
+  border: 1px solid #24314d;
+  padding: 12px;
   margin: 10px 0;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.score {
+  margin-top: 6px;
+  font-weight: bold;
+  color: #00ff99;
 }
