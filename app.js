@@ -9,10 +9,6 @@ const teams = [
   "Portugal","Panama","Turkey","Iran"
 ];
 
-/* =========================
-   TREE BUILD (deterministic)
-   ========================= */
-
 function strength(t){
   return [...t].reduce((a,c)=>a+c.charCodeAt(0),0);
 }
@@ -26,15 +22,15 @@ function buildTree(list){
   let current = list;
 
   while(current.length > 1){
-    let next = [];
     let round = [];
+    let next = [];
 
     for(let i=0;i<current.length;i+=2){
       const a = current[i];
       const b = current[i+1];
       const w = winner(a,b);
 
-      round.push({a,b,w});
+      round.push({a,b,w, id:`${rounds.length}-${i}`});
       next.push(w);
     }
 
@@ -48,47 +44,69 @@ function buildTree(list){
 const tree = buildTree(teams);
 
 /* =========================
-   POSITION ENGINE (CENTERED)
+   CLEAN HIERARCHICAL LAYOUT
    ========================= */
 
-const nodePositions = [];
+const nodePos = new Map();
 
 function layout() {
-  const widthStep = 250;
-  const heightStep = 70;
+  const xGap = 260;
+  const yGap = 70;
 
   tree.forEach((round, r) => {
     round.forEach((m, i) => {
-      const x = r * widthStep + 100;
-      const y = i * heightStep * Math.pow(2, r) + 80;
 
-      nodePositions.push({ ...m, x, y, id: `${r}-${i}` });
+      let y;
+
+      if (r === 0) {
+        y = i * yGap;
+      } else {
+        // align to children midpoint
+        const left = nodePos.get(`${r-1}-${i*2}`);
+        const right = nodePos.get(`${r-1}-${i*2+1}`);
+        y = (left.y + right.y) / 2;
+      }
+
+      const x = r * xGap + 80;
+
+      nodePos.set(`${r}-${i}`, { ...m, x, y });
     });
   });
 }
 
 /* =========================
-   SVG CONNECTIONS
+   SVG CONNECTIONS (CLEAN LINES)
    ========================= */
 
-function drawLines() {
-  const svg = document.getElementById("svg");
+function draw(svg){
+  tree.forEach((round, r) => {
+    if(r === 0) return;
 
-  nodePositions.forEach((node, i) => {
-    const next = nodePositions.find(n => n.a === node.w || n.b === node.w);
+    round.forEach((m, i) => {
+      const child = nodePos.get(`${r}-${i}`);
+      const parentA = nodePos.get(`${r-1}-${i*2}`);
+      const parentB = nodePos.get(`${r-1}-${i*2+1}`);
 
-    if(next){
-      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      [parentA, parentB].forEach(p => {
+        const line = document.createElementNS("http://www.w3.org/2000/svg","path");
 
-      line.setAttribute("x1", node.x + 160);
-      line.setAttribute("y1", node.y + 20);
-      line.setAttribute("x2", next.x);
-      line.setAttribute("y2", next.y + 20);
-      line.setAttribute("stroke", "rgba(120,160,255,0.25)");
-      line.setAttribute("stroke-width", "2");
+        const midX = (p.x + child.x) / 2;
 
-      svg.appendChild(line);
-    }
+        const d = `
+          M ${p.x+160} ${p.y+20}
+          C ${midX} ${p.y+20},
+            ${midX} ${child.y+20},
+            ${child.x} ${child.y+20}
+        `;
+
+        line.setAttribute("d", d);
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", "rgba(120,160,255,0.25)");
+        line.setAttribute("stroke-width", "2");
+
+        svg.appendChild(line);
+      });
+    });
   });
 }
 
@@ -96,10 +114,14 @@ function drawLines() {
    RENDER NODES
    ========================= */
 
-function renderNodes() {
+function render(){
   const container = document.getElementById("bracket");
+  const svg = document.getElementById("svg");
 
-  nodePositions.forEach(n => {
+  container.innerHTML = "";
+  svg.innerHTML = "";
+
+  nodePos.forEach(n => {
     const div = document.createElement("div");
     div.className = "match";
 
@@ -107,13 +129,16 @@ function renderNodes() {
     div.style.top = n.y + "px";
 
     div.innerHTML = `
-      ${n.a} vs ${n.b}
-      <br>
+      <div>${n.a}</div>
+      <div style="opacity:0.5">vs</div>
+      <div>${n.b}</div>
       <b style="color:#00ffb3">${n.w}</b>
     `;
 
     container.appendChild(div);
   });
+
+  draw(svg);
 }
 
 /* =========================
@@ -121,8 +146,7 @@ function renderNodes() {
    ========================= */
 
 layout();
-renderNodes();
-drawLines();
+render();
 
 document.getElementById("status").innerText =
-  "SVG MODE ACTIVE — TRUE TOURNAMENT TREE RENDERED";
+  "FIXED BRACKET ENGINE — CLEAN TREE LAYOUT ACTIVE";
