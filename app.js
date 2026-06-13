@@ -2,11 +2,14 @@ const API_KEY = "be44d5f532fd44788e5b9003ec75a2a0";
 
 async function fetchMatches() {
   try {
-    const res = await fetch("https://api.football-data.org/v4/matches", {
-      headers: {
-        "X-Auth-Token": API_KEY
+    const res = await fetch(
+      "https://api.football-data.org/v4/competitions/WC/matches",
+      {
+        headers: {
+          "X-Auth-Token": "be44d5f532fd44788e5b9003ec75a2a0"
+        }
       }
-    });
+    );
 
     const data = await res.json();
     return data.matches || [];
