@@ -1,49 +1,100 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #0a0f1f;
-  color: white;
   margin: 0;
+  font-family: Arial, sans-serif;
+  background: #070b14;
+  color: white;
+}
+
+header {
+  text-align: center;
   padding: 20px;
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
 #status {
-  text-align: center;
-  color: #aaa;
-  margin-bottom: 20px;
+  color: #8aa0c7;
+  font-size: 14px;
 }
 
+/* BRACKET LAYOUT */
 .bracket {
   display: flex;
-  gap: 20px;
+  gap: 30px;
+  padding: 20px;
   overflow-x: auto;
-  padding: 10px;
 }
 
+/* ROUND COLUMN */
 .round {
-  min-width: 220px;
+  min-width: 260px;
+  position: relative;
 }
 
 .round h3 {
   text-align: center;
   color: #4da3ff;
+  margin-bottom: 10px;
 }
 
+/* MATCH CARD */
 .match {
-  background: #141c2f;
-  border: 1px solid #24314d;
+  background: #111a2e;
+  border: 1px solid #22314f;
+  border-radius: 12px;
   padding: 12px;
-  margin: 10px 0;
-  border-radius: 10px;
-  text-align: center;
+  margin: 12px 0;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.match:hover {
+  transform: scale(1.02);
+  border-color: #4da3ff;
+}
+
+.team {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
 }
 
 .score {
-  margin-top: 6px;
-  font-weight: bold;
+  text-align: center;
+  margin-top: 8px;
   color: #00ff99;
+  font-weight: bold;
+}
+
+/* CONNECTOR STYLE (visual polish only) */
+.match::after {
+  content: "";
+  position: absolute;
+  right: -15px;
+  top: 50%;
+  width: 15px;
+  height: 2px;
+  background: #2a3a5c;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #121a2f;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+.hidden {
+  display: none;
 }
