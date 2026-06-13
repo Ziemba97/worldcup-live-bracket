@@ -6,77 +6,63 @@ body {
   overflow-x: auto;
 }
 
-/* background glow */
+/* background */
 .bg {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 50% 40%, rgba(0,200,255,0.15), transparent 50%),
-    radial-gradient(circle at 30% 70%, rgba(0,255,150,0.10), transparent 50%),
-    radial-gradient(circle at 70% 70%, rgba(255,0,120,0.10), transparent 50%);
+    radial-gradient(circle at center, rgba(0,200,255,0.15), transparent 60%),
+    radial-gradient(circle at 20% 70%, rgba(0,255,150,0.10), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(255,0,120,0.10), transparent 60%);
   z-index: -1;
 }
 
-/* CENTER CONTAINER */
+/* 🔥 KEY FIX: CENTERED GRID TREE */
 .bracket {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  gap: 80px;
   padding: 40px;
 }
 
-/* TREE COLUMN */
+/* each round becomes vertical stack */
 .round {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  margin: 0 25px;
+  justify-content: space-around;
+  height: 100%;
   position: relative;
+  min-width: 200px;
 }
 
-/* TITLE */
 .round h3 {
   text-align: center;
   color: #4da3ff;
   margin-bottom: 20px;
 }
 
-/* MATCH CARD */
+/* match card */
 .match {
   background: rgba(20,30,50,0.75);
   border: 1px solid rgba(100,150,255,0.25);
   border-radius: 12px;
   padding: 10px;
-  margin: 20px 0;
+  margin: 25px 0;
+  text-align: center;
   width: 180px;
   position: relative;
-  text-align: center;
-  transition: 0.2s;
 }
 
-.match:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(80,150,255,0.3);
-}
-
-/* CONNECTION LINES (TREE STYLE) */
+/* connector line */
 .match::after {
   content: "";
   position: absolute;
-  right: -25px;
+  right: -40px;
   top: 50%;
-  width: 25px;
+  width: 40px;
   height: 2px;
   background: rgba(120,160,255,0.3);
-}
-
-/* vertical connector illusion */
-.round:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  right: -25px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: rgba(120,160,255,0.15);
 }
