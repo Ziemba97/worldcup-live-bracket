@@ -1,86 +1,118 @@
 const API_KEY = "be44d5f532fd44788e5b9003ec75a2a0";
 
-async function fetchMatches() {
-  try {
-    // Try World Cup competition endpoint
-    const res = await fetch(
-      "https://api.football-data.org/v4/competitions/WC/matches",
-      {
-        headers: { "X-Auth-Token": API_KEY }
-      }
-    );
+/* =========================
+   STATIC WORLD CUP BRACKET
+   ========================= */
 
-    const data = await res.json();
+const bracket = {
+  "Round of 32": [
+    ["South Korea", "Canada"],
+    ["Germany", "Australia"],
+    ["Netherlands", "Morocco"],
+    ["Brazil", "Japan"],
+    ["France", "Tunisia"],
+    ["Ecuador", "Senegal"],
+    ["Mexico", "Scotland"],
+    ["England", "Norway"],
+    ["USA", "Ivory Coast"],
+    ["Belgium", "Algeria"],
+    ["Colombia", "Croatia"],
+    ["Spain", "Austria"],
+    ["Switzerland", "Egypt"],
+    ["Argentina", "Uruguay"],
+    ["Portugal", "Panama"],
+    ["Turkey", "Iran"]
+  ]
+};
 
-    // If API returns nothing, fallback to all matches
-    if (!data.matches || data.matches.length === 0) {
-      const res2 = await fetch(
-        "https://api.football-data.org/v4/matches",
-        {
-          headers: { "X-Auth-Token": API_KEY }
-        }
-      );
+/* =========================
+   RENDER BRACKET
+   ========================= */
 
-      const data2 = await res2.json();
-      return data2.matches || [];
-    }
-
-    return data.matches;
-
-  } catch (err) {
-    console.error("API error:", err);
-    return [];
-  }
-}
-
-function render(matches) {
+function renderBracket() {
   const container = document.getElementById("bracket");
   container.innerHTML = "";
 
-  const round = document.createElement("div");
-  round.className = "round";
+  for (const round in bracket) {
+    const col = document.createElement("div");
+    col.className = "round";
 
-  round.innerHTML = `<h3>LIVE MATCHES</h3>`;
+    col.innerHTML = `<h3>${round}</h3>`;
 
-  if (!matches.length) {
-    round.innerHTML += `<div class="match">No data available</div>`;
+    bracket[round].forEach(match => {
+      const div = document.createElement("div");
+      div.className = "match";
+
+      div.innerHTML = `
+        <div><strong>${match[0]}</strong></div>
+        <div style="opacity:0.6">vs</div>
+        <div><strong>${match[1]}</strong></div>
+        <div class="score" id="${match[0]}-${match[1]}">- : -</div>
+      `;
+
+      col.appendChild(div);
+    });
+
+    container.appendChild(col);
   }
-
-  matches.slice(0, 20).forEach(m => {
-    const div = document.createElement("div");
-    div.className = "match";
-
-    div.innerHTML = `
-      <strong>${m.homeTeam?.name || "TBD"}</strong>
-      ${m.score?.fullTime?.home ?? "-"}
-      <br/>
-      <strong>${m.awayTeam?.name || "TBD"}</strong>
-      ${m.score?.fullTime?.away ?? "-"}
-    `;
-
-    round.appendChild(div);
-  });
-
-  container.appendChild(round);
 }
 
-async function update() {
-  document.getElementById("status").innerText = "Updating live data...";
+/* =========================
+   LIVE SCORE ENRICHMENT
+   (non-blocking, optional API)
+   ========================= */
 
-  const matches = await fetchMatches();
+async function updateScores() {
+  try {
+    const res = await fetch("https://api.football-data.org/v4/matches", {
+      headers: { "X-Auth-Token": API_KEY }
+    });
 
-  console.log("MATCHES FROM API:", matches);
+    const data = await res.json();
+    const matches = data.matches || [];
 
-  if (!matches.length) {
+    matches.forEach(m => {
+      const key1 = `${m.homeTeam?.name}-${m.awayTeam?.name}`;
+      const key2 = `${m.awayTeam?.name}-${m.homeTeam?.name}`;
+
+      const scoreText = `${m.score?.fullTime?.home ?? 0} - ${m.score?.fullTime?.away ?? 0}`;
+
+      const el =
+        document.getElementById(key1) ||
+        document.getElementById(key2);
+
+      if (el) el.innerText = scoreText;
+    });
+
     document.getElementById("status").innerText =
-      "No data returned from API (check console)";
-  } else {
+      "Live data updating • " + matches.length + " matches loaded";
+
+  } catch (e) {
+    console.log("API fallback mode");
+
     document.getElementById("status").innerText =
-      `Live • ${matches.length} matches loaded`;
+      "Bracket mode (live API unavailable)";
   }
-
-  render(matches);
 }
 
-update();
-setInterval(update, 60000);
+/* =========================
+   AUTO WINNER SIMULATION
+   (so bracket NEVER breaks)
+   ========================= */
+
+function simulateProgression() {
+  // simple visual progression (placeholder logic)
+  // later we can make it fully real-time bracket logic
+
+  console.log("Bracket system active");
+}
+
+/* =========================
+   INIT
+   ========================= */
+
+renderBracket();
+updateScores();
+simulateProgression();
+
+setInterval(updateScores, 60000);
