@@ -1,29 +1,50 @@
+/* ===== BACKGROUND ===== */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #070b14;
   color: white;
+  overflow-x: auto;
+  background: #050814;
 }
 
+.bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0,255,180,0.15), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(0,120,255,0.15), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(255,0,120,0.10), transparent 40%),
+    linear-gradient(180deg, #050814, #02030a);
+  z-index: -1;
+}
+
+/* ===== HEADER ===== */
 header {
   text-align: center;
   padding: 20px;
 }
 
-#status {
-  color: #8aa0c7;
-  font-size: 14px;
+h1 {
+  margin: 0;
+  letter-spacing: 2px;
 }
 
-/* BRACKET LAYOUT */
+#status {
+  color: #9bb3d1;
+  font-size: 13px;
+}
+
+/* ===== BRACKET LAYOUT ===== */
 .bracket {
   display: flex;
-  gap: 30px;
+  gap: 60px;
   padding: 20px;
-  overflow-x: auto;
 }
 
-/* ROUND COLUMN */
+/* ===== ROUND ===== */
 .round {
   min-width: 260px;
   position: relative;
@@ -32,50 +53,54 @@ header {
 .round h3 {
   text-align: center;
   color: #4da3ff;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
-/* MATCH CARD */
+/* ===== MATCH CARD (GLASS STYLE) ===== */
 .match {
-  background: #111a2e;
-  border: 1px solid #22314f;
-  border-radius: 12px;
+  background: rgba(20, 30, 50, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(120,160,255,0.2);
+  border-radius: 14px;
   padding: 12px;
-  margin: 12px 0;
+  margin: 18px 0;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.25s;
+  position: relative;
 }
 
 .match:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
   border-color: #4da3ff;
+  box-shadow: 0 0 20px rgba(77,163,255,0.3);
 }
 
 .team {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+  margin: 3px 0;
 }
 
 .score {
   text-align: center;
   margin-top: 8px;
-  color: #00ff99;
   font-weight: bold;
+  color: #00ffb3;
 }
 
-/* CONNECTOR STYLE (visual polish only) */
+/* ===== CONNECTOR LINES ===== */
 .match::after {
   content: "";
   position: absolute;
-  right: -15px;
+  right: -30px;
   top: 50%;
-  width: 15px;
+  width: 30px;
   height: 2px;
-  background: #2a3a5c;
+  background: rgba(120,160,255,0.3);
 }
 
-/* MODAL */
+/* ===== MODAL ===== */
 .modal {
   position: fixed;
   top: 0;
@@ -91,8 +116,8 @@ header {
 .modal-content {
   background: #121a2f;
   padding: 20px;
-  border-radius: 10px;
-  width: 300px;
+  border-radius: 12px;
+  width: 320px;
 }
 
 .hidden {
