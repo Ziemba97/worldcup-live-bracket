@@ -1,10 +1,10 @@
 const API_KEY = "be44d5f532fd44788e5b9003ec75a2a0";
 
 /* =========================
-   STATIC WORLD CUP BRACKET
+   FULL TOURNAMENT MODEL
    ========================= */
 
-const bracket = {
+let rounds = {
   "Round of 32": [
     ["South Korea", "Canada"],
     ["Germany", "Australia"],
@@ -29,37 +29,37 @@ const bracket = {
    RENDER BRACKET
    ========================= */
 
-function renderBracket() {
+function render() {
   const container = document.getElementById("bracket");
   container.innerHTML = "";
 
-  for (const round in bracket) {
+  Object.keys(rounds).forEach(roundName => {
     const col = document.createElement("div");
     col.className = "round";
 
-    col.innerHTML = `<h3>${round}</h3>`;
+    col.innerHTML = `<h3>${roundName}</h3>`;
 
-    bracket[round].forEach(match => {
+    rounds[roundName].forEach((m, i) => {
       const div = document.createElement("div");
       div.className = "match";
 
+      div.onclick = () => openModal(m);
+
       div.innerHTML = `
-        <div><strong>${match[0]}</strong></div>
-        <div style="opacity:0.6">vs</div>
-        <div><strong>${match[1]}</strong></div>
-        <div class="score" id="${match[0]}-${match[1]}">- : -</div>
+        <div class="team"><span>${m[0]}</span><span id="${m[0]}-${m[1]}-h">-</span></div>
+        <div class="team"><span>${m[1]}</span><span id="${m[0]}-${m[1]}-a">-</span></div>
+        <div class="score">vs</div>
       `;
 
       col.appendChild(div);
     });
 
     container.appendChild(col);
-  }
+  });
 }
 
 /* =========================
-   LIVE SCORE ENRICHMENT
-   (non-blocking, optional API)
+   LIVE SCORE UPDATE
    ========================= */
 
 async function updateScores() {
@@ -72,47 +72,53 @@ async function updateScores() {
     const matches = data.matches || [];
 
     matches.forEach(m => {
-      const key1 = `${m.homeTeam?.name}-${m.awayTeam?.name}`;
-      const key2 = `${m.awayTeam?.name}-${m.homeTeam?.name}`;
+      const key = `${m.homeTeam?.name}-${m.awayTeam?.name}`;
 
-      const scoreText = `${m.score?.fullTime?.home ?? 0} - ${m.score?.fullTime?.away ?? 0}`;
+      const h = document.getElementById(`${key}-h`);
+      const a = document.getElementById(`${key}-a`);
 
-      const el =
-        document.getElementById(key1) ||
-        document.getElementById(key2);
-
-      if (el) el.innerText = scoreText;
+      if (h && a) {
+        h.innerText = m.score?.fullTime?.home ?? 0;
+        a.innerText = m.score?.fullTime?.away ?? 0;
+      }
     });
 
     document.getElementById("status").innerText =
-      "Live data updating • " + matches.length + " matches loaded";
+      `Live system active • ${matches.length} matches`;
 
   } catch (e) {
-    console.log("API fallback mode");
-
     document.getElementById("status").innerText =
-      "Bracket mode (live API unavailable)";
+      "Offline mode (bracket simulation active)";
   }
 }
 
 /* =========================
-   AUTO WINNER SIMULATION
-   (so bracket NEVER breaks)
+   MATCH MODAL
    ========================= */
 
-function simulateProgression() {
-  // simple visual progression (placeholder logic)
-  // later we can make it fully real-time bracket logic
+function openModal(match) {
+  const modal = document.getElementById("modal");
 
-  console.log("Bracket system active");
+  modal.innerHTML = `
+    <div class="modal-content">
+      <h3>${match[0]} vs ${match[1]}</h3>
+      <p>Round: Knockout Stage</p>
+      <button onclick="closeModal()">Close</button>
+    </div>
+  `;
+
+  modal.classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.add("hidden");
 }
 
 /* =========================
    INIT
    ========================= */
 
-renderBracket();
+render();
 updateScores();
-simulateProgression();
 
 setInterval(updateScores, 60000);
