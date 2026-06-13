@@ -1,5 +1,5 @@
 /* =========================
-   WORLD CUP GOD MODE ENGINE
+   ULTIMATE CENTERED BRACKET ENGINE
    ========================= */
 
 const teams = [
@@ -13,46 +13,45 @@ const teams = [
   "Portugal","Panama","Turkey","Iran"
 ];
 
-/* deterministic strength system (NO randomness chaos) */
-function strength(team) {
-  return team.split("").reduce((a,c)=>a+c.charCodeAt(0),0);
+/* deterministic strength system */
+function strength(t) {
+  return t.split("").reduce((a,c)=>a+c.charCodeAt(0),0);
 }
 
 /* winner logic */
-function pickWinner(a, b) {
+function winner(a,b){
   return strength(a) > strength(b) ? a : b;
 }
 
-/* build rounds */
-function buildRounds(list) {
+/* build full tree */
+function buildTree(list){
   let rounds = [];
   let current = list;
 
-  while (current.length > 1) {
+  while(current.length > 1){
     let next = [];
-    let roundMatches = [];
+    let round = [];
 
-    for (let i = 0; i < current.length; i += 2) {
+    for(let i=0;i<current.length;i+=2){
       const a = current[i];
       const b = current[i+1];
+      const w = winner(a,b);
 
-      const winner = pickWinner(a,b);
-
-      roundMatches.push([a,b,winner]);
-      next.push(winner);
+      round.push({a,b,w});
+      next.push(w);
     }
 
-    rounds.push(roundMatches);
+    rounds.push(round);
     current = next;
   }
 
   return rounds;
 }
 
-const rounds = buildRounds(teams);
+const tree = buildTree(teams);
 
-/* render */
-function render() {
+/* render CENTERED TREE */
+function render(){
   const container = document.getElementById("bracket");
   container.innerHTML = "";
 
@@ -64,21 +63,22 @@ function render() {
     "FINAL"
   ];
 
-  rounds.forEach((round, idx) => {
+  tree.forEach((round, idx) => {
     const col = document.createElement("div");
     col.className = "round";
 
-    col.innerHTML = `<h3>${names[idx]}</h3>`;
+    col.innerHTML = `<h3>${names[idx] || "ROUND"}</h3>`;
 
-    round.forEach(match => {
+    round.forEach(m => {
       const div = document.createElement("div");
       div.className = "match";
 
-      const [a,b,w] = match;
-
       div.innerHTML = `
-        <div class="${w===a?'winner':''}">${a}</div>
-        <div class="${w===b?'winner':''}">${b}</div>
+        <div style="font-size:12px">${m.a}</div>
+        <div style="opacity:0.5">vs</div>
+        <div style="font-size:12px">${m.b}</div>
+        <hr style="border:0;border-top:1px solid #2a3a5c;margin:6px 0">
+        <div style="color:#00ffb3;font-weight:bold">${m.w}</div>
       `;
 
       col.appendChild(div);
@@ -88,7 +88,8 @@ function render() {
   });
 }
 
-/* init */
+/* INIT */
 render();
+
 document.getElementById("status").innerText =
-  "GOD MODE ACTIVE — FULL TOURNAMENT GENERATED";
+  "ULTIMATE MODE ACTIVE — CENTERED TOURNAMENT TREE LOADED";
