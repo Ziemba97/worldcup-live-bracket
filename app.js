@@ -68,9 +68,18 @@ async function update() {
   document.getElementById("status").innerText = "Updating live data...";
 
   const matches = await fetchMatches();
-  render(matches);
 
-  document.getElementById("status").innerText = "Live • updates every 60s";
+  console.log("MATCHES FROM API:", matches);
+
+  if (!matches.length) {
+    document.getElementById("status").innerText =
+      "No data returned from API (check console)";
+  } else {
+    document.getElementById("status").innerText =
+      `Live • ${matches.length} matches loaded`;
+  }
+
+  render(matches);
 }
 
 update();
